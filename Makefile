@@ -1,7 +1,10 @@
 test:
-	python -m pytest
+	poetry run python -m pytest
 
 lint:
-	pylint panda3d_render_pass_node
+	poetry run pylint panda3d_render_pass_node
 
-ci: lint test
+install:
+	poetry install
+
+ci: install lint test
