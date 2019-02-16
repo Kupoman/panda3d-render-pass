@@ -1,8 +1,9 @@
 [tool.poetry]
-name = "panda3d-render-pass-node"
+name = "panda3d-render-pass"
 version = "0.1.0"
-description = "A Panda3D node to simplify setting up multi-pass rendering systems"
+description = "A Panda3D utility to simplify setting up multi-pass rendering systems"
 authors = ["Daniel Stokes <kupomail@gmail.com>"]
+readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.7"

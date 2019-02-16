@@ -1,5 +1,5 @@
 test:
-	poetry run python -m pytest
+	poetry run python -m pytest --color=yes
 
 lint:
 	poetry run pylint panda3d_render_pass_node
