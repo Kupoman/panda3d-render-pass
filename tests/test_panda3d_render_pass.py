@@ -1,4 +1,4 @@
-from panda3d_render_pass_node import __version__
+from panda3d_render_pass import __version__
 
 
 def test_version():
