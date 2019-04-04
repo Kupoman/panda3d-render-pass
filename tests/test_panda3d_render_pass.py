@@ -28,16 +28,17 @@ def default_args():
     return {
         'pipe': pipe,
         'engine': engine,
-        'window': window
+        'window': window,
+        'camera': p3d.NodePath(p3d.Camera('camera', p3d.PerspectiveLens()))
     }
 
 
 def test_create_output(default_args):
     engine = default_args['engine']
-    window = default_args['window']
     initial_win_count = len(engine.get_windows())
-    initial_buffer_count = window.count_textures()
     rpass = RenderPass('test', **default_args)
     engine.render_frame()
     assert len(engine.get_windows()) == initial_win_count + 1
     assert type(rpass.buffer == p3d.GraphicsOutput)
+
+    assert rpass.display_region.get_camera() == default_args['camera']

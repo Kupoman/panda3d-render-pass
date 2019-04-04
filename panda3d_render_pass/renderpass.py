@@ -23,7 +23,6 @@ def create_buffer(name, pipe, engine, window):
         window
     )
 
-
 class RenderPass:
     def __init__(
             self,
@@ -31,11 +30,13 @@ class RenderPass:
             pipe=None,
             engine=None,
             window=None,
+            camera=None,
     ):
         self.name = name
         self._pipe = pipe if pipe else base.pipe
         self._engine = engine if engine else base.graphics_engine
         self._window = window if window else base.win
+        self._camera = camera if camera else base.cam
         self.output = p3d.Texture(f'{self.name}_output')
         self.buffer = create_buffer(
             self.name,
@@ -49,3 +50,6 @@ class RenderPass:
             p3d.GraphicsOutput.RTM_bind_or_copy,
             p3d.GraphicsOutput.RTP_color
         )
+
+        self.display_region = self.buffer.make_display_region(0, 1, 0, 1)
+        self.display_region.set_camera(self._camera)
