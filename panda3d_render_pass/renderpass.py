@@ -1,28 +1,6 @@
 import panda3d.core as p3d
 
 
-def create_default_framebuffer_properties():
-    props = p3d.FrameBufferProperties()
-    props.set_rgba_bits(8, 8, 8, 0)
-    props.set_depth_bits(24)
-    return props
-
-
-def create_window_properties(size_x, size_y):
-    return p3d.WindowProperties.size(size_x, size_y)
-
-def create_buffer(name, pipe, engine, window):
-    return engine.make_output(
-        pipe,
-        name,
-        0,
-        create_default_framebuffer_properties(),
-        p3d.WindowProperties(),
-        p3d.GraphicsPipe.BF_refuse_window | p3d.GraphicsPipe.BF_size_track_host,
-        window.get_gsg(),
-        window
-    )
-
 class RenderPass:
     def __init__(
             self,
@@ -31,6 +9,7 @@ class RenderPass:
             engine=None,
             window=None,
             camera=None,
+            clear_color=p3d.LColor(0.41, 0.41, 0.41, 0.0)
     ):
         self.name = name
         self._pipe = pipe if pipe else base.pipe
@@ -38,12 +17,7 @@ class RenderPass:
         self._window = window if window else base.win
         self._camera = camera if camera else base.cam
         self.output = p3d.Texture(f'{self.name}_output')
-        self.buffer = create_buffer(
-            self.name,
-            self._pipe,
-            self._engine,
-            self._window
-        )
+        self.buffer = self._make_buffer()
 
         self.buffer.add_render_texture(
             self.output,
@@ -53,3 +27,20 @@ class RenderPass:
 
         self.display_region = self.buffer.make_display_region(0, 1, 0, 1)
         self.display_region.set_camera(self._camera)
+        self.buffer.set_clear_color(clear_color)
+
+    def _make_buffer(self):
+        fb_props = p3d.FrameBufferProperties()
+        fb_props.set_rgba_bits(8, 8, 8, 0)
+        fb_props.set_depth_bits(24)
+
+        return self._engine.make_output(
+            self._pipe,
+            self.name,
+            0,
+            fb_props,
+            p3d.WindowProperties(),
+            p3d.GraphicsPipe.BF_refuse_window | p3d.GraphicsPipe.BF_size_track_host,
+            self._window.get_gsg(),
+            self._window
+        )

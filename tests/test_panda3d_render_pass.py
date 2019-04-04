@@ -1,9 +1,9 @@
 import pytest
 
-
 import panda3d.core as p3d
 
 from panda3d_render_pass import RenderPass
+
 
 def create_window(engine, pipe):
     fbprops = p3d.FrameBufferProperties()
@@ -19,6 +19,7 @@ def create_window(engine, pipe):
         winprops,
         flags
     )
+
 
 @pytest.fixture
 def default_args():
@@ -42,3 +43,10 @@ def test_create_output(default_args):
     assert type(rpass.buffer == p3d.GraphicsOutput)
 
     assert rpass.display_region.get_camera() == default_args['camera']
+
+
+def test_control_clear_color(default_args):
+    default_args['clear_color'] = p3d.LColor(0.5, 1.0, 0.0, 1.0)
+    rpass = RenderPass('test', **default_args)
+    assert rpass.buffer.get_clear_color() == default_args['clear_color']
+
