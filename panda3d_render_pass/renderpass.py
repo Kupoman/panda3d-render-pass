@@ -15,7 +15,7 @@ class RenderPass:
         self._pipe = pipe if pipe else base.pipe
         self._engine = engine if engine else base.graphics_engine
         self._window = window if window else base.win
-        self._camera = camera if camera else base.cam
+        self._camera = camera
         self.output = p3d.Texture(f'{self.name}_output')
         self.buffer = self._make_buffer()
 
@@ -26,7 +26,8 @@ class RenderPass:
         )
 
         self.display_region = self.buffer.make_display_region(0, 1, 0, 1)
-        self.display_region.set_camera(self._camera)
+        if self._camera:
+            self.display_region.set_camera(self._camera)
         self.buffer.set_clear_color(clear_color)
 
     def _make_buffer(self):
