@@ -60,7 +60,7 @@ confidence=
 # --enable=similarities". If you want to run only the classes checker, but have
 # no Warning level messages displayed, use "--disable=all --enable=classes
 # --disable=W".
-disable=missing-docstring
+disable=missing-docstring,c-extension-no-member,too-few-public-methods
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option
@@ -122,7 +122,7 @@ indent-after-paren=4
 indent-string='    '
 
 # Maximum number of characters on a single line.
-max-line-length=79
+max-line-length=100
 
 # Maximum number of lines in a module.
 max-module-lines=1000
@@ -147,7 +147,7 @@ single-line-if-stmt=no
 
 # List of additional names supposed to be defined in builtins. Remember that
 # you should avoid defining new builtins when possible.
-additional-builtins=
+additional-builtins=base
 
 # Tells whether unused global variables should be treated as a violation.
 allow-global-unused-variables=yes
