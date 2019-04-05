@@ -34,7 +34,7 @@ def default_args():
     }
 
 
-def test_create_output(default_args):
+def test_create_buffer(default_args):
     engine = default_args['engine']
     initial_win_count = len(engine.get_windows())
     rpass = RenderPass('test', **default_args)
@@ -42,11 +42,21 @@ def test_create_output(default_args):
     assert len(engine.get_windows()) == initial_win_count + 1
     assert type(rpass.buffer == p3d.GraphicsOutput)
 
-    assert rpass.display_region.get_camera() == default_args['camera']
+
+def test_camera_sync(default_args):
+    scam = default_args['camera']
+    rpass = RenderPass('test', **default_args)
+    scam.set_pos(p3d.LVector3(1, 2, 3))
+    scam.set_hpr(p3d.LVector3(1, 2, 3))
+    default_args['engine'].render_frame()
+
+    rcam = rpass.display_region.get_camera()
+    assert rcam.get_pos() == scam.get_pos()
+    assert rcam.get_hpr() == scam.get_hpr()
+    assert rcam.get_node(0).get_lens() == scam.get_node(0).get_lens()
 
 
 def test_control_clear_color(default_args):
     default_args['clear_color'] = p3d.LColor(0.5, 1.0, 0.0, 1.0)
     rpass = RenderPass('test', **default_args)
     assert rpass.buffer.get_clear_color() == default_args['clear_color']
-
