@@ -30,6 +30,7 @@ def default_args():
         'pipe': pipe,
         'engine': engine,
         'window': window,
+        'scene': p3d.NodePath(p3d.ModelNode('scene')),
         'camera': p3d.NodePath(p3d.Camera('camera', p3d.PerspectiveLens()))
     }
 
@@ -42,6 +43,9 @@ def test_create_buffer(default_args):
     assert len(engine.get_windows()) == initial_win_count + 1
     assert type(rpass.buffer == p3d.GraphicsOutput)
 
+    display_scene = rpass.display_region.get_camera().get_node(0).get_scene()
+    assert display_scene.find('**/scene')
+
 
 def test_camera_sync(default_args):
     scam = default_args['camera']
@@ -49,10 +53,30 @@ def test_camera_sync(default_args):
     scam.set_pos(p3d.LVector3(1, 2, 3))
     scam.set_hpr(p3d.LVector3(1, 2, 3))
     default_args['engine'].render_frame()
+    default_args['engine'].render_frame()
+    default_args['engine'].render_frame()
+    default_args['engine'].render_frame()
 
     rcam = rpass.display_region.get_camera()
-    assert rcam.get_pos() == scam.get_pos()
-    assert rcam.get_hpr() == scam.get_hpr()
+    assert rcam.get_pos().compare_to(scam.get_pos()) == 0
+    assert rcam.get_hpr().compare_to(scam.get_hpr()) == 0
+    assert rcam.get_node(0).get_lens() == scam.get_node(0).get_lens()
+
+
+def test_camera_sync_indirect(default_args):
+    scam = default_args['camera']
+    default_args['camera'] = p3d.NodePath(p3d.ModelNode('indirect'))
+    scam.reparent_to(default_args['camera'])
+    indirect = default_args['camera']
+
+    rpass = RenderPass('test', **default_args)
+    scam.set_pos(p3d.LVector3(1, 2, 3))
+    scam.set_hpr(p3d.LVector3(1, 2, 3))
+    default_args['engine'].render_frame()
+
+    rcam = rpass.display_region.get_camera()
+    assert rcam.get_pos().compare_to(indirect.get_pos()) == 0
+    assert rcam.get_hpr().compare_to(indirect.get_hpr()) == 0
     assert rcam.get_node(0).get_lens() == scam.get_node(0).get_lens()
 
 
