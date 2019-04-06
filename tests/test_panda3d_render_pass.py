@@ -30,7 +30,6 @@ def default_args():
         'pipe': pipe,
         'engine': engine,
         'window': window,
-        'scene': p3d.NodePath(p3d.ModelNode('scene')),
     }
 
 
@@ -39,13 +38,25 @@ def camera():
     return p3d.NodePath(p3d.Camera('camera', p3d.PerspectiveLens()))
 
 
+@pytest.fixture
+def scene():
+    return p3d.NodePath(p3d.ModelNode('scene'))
+
+
 def test_create_buffer(default_args):
     engine = default_args['engine']
     initial_win_count = len(engine.get_windows())
     rpass = RenderPass('test', **default_args)
     engine.render_frame()
+
     assert len(engine.get_windows()) == initial_win_count + 1
     assert type(rpass.buffer == p3d.GraphicsOutput)
+
+
+def test_scene(default_args, scene):
+    default_args['scene'] = scene
+    rpass = RenderPass('test', **default_args)
+    default_args['engine'].render_frame()
 
     display_scene = rpass.display_region.get_camera().get_node(0).get_scene()
     assert display_scene.find('**/scene')
@@ -87,6 +98,7 @@ def test_control_clear_color(default_args):
     default_args['clear_color'] = p3d.LColor(0.5, 1.0, 0.0, 1.0)
     rpass = RenderPass('test', **default_args)
     assert rpass.buffer.get_clear_color() == default_args['clear_color']
+
 
 def test_apply_shader(default_args):
     vertex = '#version 120\nvoid main() { gl_Position = vec4(0.0); }'
