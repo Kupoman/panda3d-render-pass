@@ -84,3 +84,11 @@ def test_control_clear_color(default_args):
     default_args['clear_color'] = p3d.LColor(0.5, 1.0, 0.0, 1.0)
     rpass = RenderPass('test', **default_args)
     assert rpass.buffer.get_clear_color() == default_args['clear_color']
+
+def test_apply_shader(default_args):
+    vertex = '#version 120\nvoid main() { gl_Position = vec4(0.0); }'
+    fragment = '#version 120\nvoid main() { gl_FragColor = vec4(0.0); }'
+    default_args['shader'] = p3d.Shader.make(p3d.Shader.SL_GLSL, vertex, fragment, '', '', '')
+
+    rpass = RenderPass('test', **default_args)
+    assert rpass._root.get_shader()

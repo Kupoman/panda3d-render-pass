@@ -10,6 +10,7 @@ class RenderPass:
             window=None,
             camera=None,
             scene=None,
+            shader=None,
             clear_color=p3d.LColor(0.41, 0.41, 0.41, 0.0)
     ):
         self.name = name
@@ -19,6 +20,8 @@ class RenderPass:
         self._root = p3d.NodePath(p3d.ModelNode(f'{self.name}_root'))
         if scene:
             scene.instance_to(self._root)
+        if shader:
+            self._root.set_shader(shader)
 
         self._camera = self._make_camera(camera)
         self.output = p3d.Texture(f'{self.name}_output')
