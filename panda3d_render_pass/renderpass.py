@@ -44,13 +44,13 @@ class RenderPass:
         cam_nodepath = self._root.attach_new_node(cam)
         cam.set_scene(self._root)
 
-        try:
-            lens = source_cam.get_node(0).get_lens()
-        except AttributeError:
-            lens = source_cam.find('**/+Camera').get_node(0).get_lens()
-        cam.set_lens(lens)
         if source_cam:
             def update(callback_data):
+                try:
+                    lens = source_cam.get_node(0).get_lens()
+                except AttributeError:
+                    lens = source_cam.find('**/+Camera').get_node(0).get_lens()
+                cam.set_lens(lens)
                 cam_nodepath.set_pos(source_cam.get_pos(self._root))
                 cam_nodepath.set_hpr(source_cam.get_hpr(self._root))
                 callback_data.upcall()
