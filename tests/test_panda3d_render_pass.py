@@ -56,10 +56,15 @@ def test_create_buffer(default_args):
 def test_scene(default_args, scene):
     default_args['scene'] = scene
     rpass = RenderPass('test', **default_args)
-    default_args['engine'].render_frame()
-
     display_scene = rpass.display_region.get_camera().get_node(0).get_scene()
     assert display_scene.find('**/scene')
+
+
+def test_empty_scene(default_args):
+    rpass = RenderPass('test', **default_args)
+    display_scene = rpass.display_region.get_camera().get_node(0).get_scene()
+    quad = display_scene.find('**/+GeomNode')
+    assert quad.get_node(0).get_geom(0).get_num_primitives() == 1
 
 
 def test_camera_sync(default_args, camera):

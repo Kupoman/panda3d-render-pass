@@ -18,8 +18,13 @@ class RenderPass:
         self._engine = engine if engine else base.graphics_engine
         self._window = window if window else base.win
         self._root = p3d.NodePath(p3d.ModelNode(f'{self.name}_root'))
+
         if scene:
             scene.instance_to(self._root)
+        else:
+            quad = self._make_fullscreen_quad()
+            quad.reparent_to(self._root)
+
         if shader:
             self._root.set_shader(shader)
 
@@ -75,3 +80,21 @@ class RenderPass:
             self._window.get_gsg(),
             self._window
         )
+
+    def _make_fullscreen_quad(self):
+        tris = p3d.GeomTristrips(p3d.GeomEnums.UH_static)
+        tris.add_next_vertices(4)
+        vdata = p3d.GeomVertexData(
+            'abc',
+            p3d.GeomVertexFormat.get_empty(),
+            p3d.GeomEnums.UH_static
+        )
+
+        geom = p3d.Geom(vdata)
+        geom.add_primitive(tris)
+        geom.set_bounds(p3d.OmniBoundingVolume())
+
+        node = p3d.GeomNode(f'{self.name}_fullscreen_quad')
+        node.add_geom(geom)
+
+        return p3d.NodePath(node)
