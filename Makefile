@@ -7,4 +7,7 @@ lint:
 install:
 	poetry install
 
-ci: install lint test
+init-screen:
+	Xvfb :1 -screen 0 1024x268x16 &
+
+ci: init-screen install lint test
