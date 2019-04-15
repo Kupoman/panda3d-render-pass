@@ -11,6 +11,7 @@ class RenderPass:
             camera=None,
             scene=None,
             shader=None,
+            frame_buffer_properties=None,
             clear_color=p3d.LColor(0.41, 0.41, 0.41, 0.0)
     ):
         self.name = name
@@ -30,7 +31,7 @@ class RenderPass:
 
         self._camera = self._make_camera(camera)
         self.output = p3d.Texture(f'{self.name}_output')
-        self.buffer = self._make_buffer()
+        self.buffer = self._make_buffer(frame_buffer_properties)
 
         self.buffer.add_render_texture(
             self.output,
@@ -65,10 +66,11 @@ class RenderPass:
 
         return cam_nodepath
 
-    def _make_buffer(self):
-        fb_props = p3d.FrameBufferProperties()
-        fb_props.set_rgba_bits(8, 8, 8, 0)
-        fb_props.set_depth_bits(24)
+    def _make_buffer(self, fb_props):
+        if not fb_props:
+            fb_props = p3d.FrameBufferProperties()
+            fb_props.set_rgba_bits(8, 8, 8, 0)
+            fb_props.set_depth_bits(24)
 
         return self._engine.make_output(
             self._pipe,

@@ -8,7 +8,6 @@ out vec4 out_data;
 void main()
 {
     vec3 color = texture(render, texcoord).rgb;
-    //color *= vec3(16.0);
     color = color / (color + vec3(1.0));
     color = pow(color, vec3(1.0/2.2));
     out_data.rgb = color;

@@ -16,7 +16,7 @@ from panda3d.core import CollisionHandlerPusher, CollisionSphere
 from panda3d.core import Filename, AmbientLight, DirectionalLight
 from panda3d.core import PandaNode, NodePath, Camera, TextNode
 from panda3d.core import CollideMask
-from panda3d.core import LColor, Shader, LightRampAttrib, FrameBufferProperties
+from panda3d.core import LColor, Shader, LightRampAttrib, FrameBufferProperties, Texture
 from panda3d.core import load_prc_file_data
 from direct.gui.OnscreenText import OnscreenText
 from direct.actor.Actor import Actor
@@ -68,6 +68,7 @@ class RoamingRalphDemo(ShowBase):
             'scene',
             camera=base.camera,
             scene=base.render,
+            frame_buffer_properties=fb_props,
             clear_color=LColor(0.53, 0.80, 0.92, 1),
         )
 
@@ -228,6 +229,10 @@ class RoamingRalphDemo(ShowBase):
         directionalLight.setSpecularColor((1, 1, 1, 1))
         render.setLight(render.attachNewNode(ambientLight))
         render.setLight(render.attachNewNode(directionalLight))
+
+        # Clean up texture attributes
+        for texture in self.render.find_all_textures():
+            texture.set_format(Texture.F_srgb)
 
     # Records the state of the arrow keys
     def setKey(self, key, value):
