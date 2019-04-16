@@ -11,8 +11,7 @@ init-screen:
 	Xvfb :1 -screen 0 1024x268x16 &
 
 publish:
-	poetry config repositories.test https://test.pypi.org/simple
 	poetry build
-	poetry publish --repository test --username $(PYPI_USERNAME) --password $(PYPI_PASSWORD)
+	poetry publish --username $(PYPI_USERNAME) --password $(PYPI_PASSWORD)
 
 ci: init-screen install lint test
