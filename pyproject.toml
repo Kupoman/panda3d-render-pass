@@ -1,9 +1,17 @@
 [tool.poetry]
 name = "panda3d-render-pass"
-version = "0.1.0"
+version = "0.1.1"
+license = "MIT"
 description = "A Panda3D utility to simplify setting up multi-pass rendering systems"
 authors = ["Daniel Stokes <kupomail@gmail.com>"]
 readme = "README.md"
+homepage = "https://github.com/Kupoman/panda3d-render-pass"
+repository = "https://github.com/Kupoman/panda3d-render-pass"
+documentation = "https://github.com/Kupoman/panda3d-render-pass"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "License :: OSI Approved :: MIT License"
+]
 
 [tool.poetry.dependencies]
 python = "^3.7"
