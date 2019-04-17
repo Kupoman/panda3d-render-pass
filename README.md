@@ -1,6 +1,6 @@
 # Render Pass
 This library is intended to make multi-pass rendering a little easier in Panda3D.
-Each RenderPass objects represents a render target and a scene to render.
+Each RenderPass object represents a render target and a scene to render.
 If no scene is given, a fullscreen quad is rendered.
 This library is meant to replace the FilterManager found in Panda3D's Direct library.
 
