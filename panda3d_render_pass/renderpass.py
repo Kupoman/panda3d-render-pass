@@ -12,7 +12,7 @@ class RenderPass:
             scene=None,
             shader=None,
             frame_buffer_properties=None,
-            clear_color=p3d.LColor(0.41, 0.41, 0.41, 0.0)
+            clear_color=p3d.LColor(0.41, 0.41, 0.41, 0.0),
     ):
         self.name = name
         self._pipe = pipe if pipe else base.pipe
@@ -29,21 +29,41 @@ class RenderPass:
         if shader:
             self._root.set_shader(shader)
 
+        if not frame_buffer_properties:
+            frame_buffer_properties = self._make_default_buffer_props()
+        output_count = self._count_outputs(frame_buffer_properties)
+
         self._camera = self._make_camera(camera)
-        self.output = p3d.Texture(f'{self.name}_output')
         self.buffer = self._make_buffer(frame_buffer_properties)
 
-        self.buffer.add_render_texture(
-            self.output,
-            p3d.GraphicsOutput.RTM_bind_or_copy,
-            p3d.GraphicsOutput.RTP_color
-        )
+        self.outputs = self._make_outputs(output_count)
+        self.output = self.outputs[0] if self.outputs else None
 
         self.display_region = self.buffer.make_display_region(0, 1, 0, 1)
         if self._camera:
             self.display_region.set_camera(self._camera)
         self.buffer.set_clear_color(clear_color)
 
+    def _count_outputs(self, fb_props):
+        count = 0
+        if fb_props.get_rgb_color():
+            count += 1
+        count += fb_props.get_aux_rgba()
+        return count
+
+    def _make_outputs(self, count):
+        outputs = [p3d.Texture(f'{self.name}_output_{i}') for i in range(count)]
+        for i, output in enumerate(outputs):
+            attach_point = p3d.GraphicsOutput.RTP_color
+            if i > 0:
+                attach_point = getattr(p3d.GraphicsOutput, f'RTP_aux_rgba_{i - 1}')
+
+            self.buffer.add_render_texture(
+                output,
+                p3d.GraphicsOutput.RTM_bind_or_copy,
+                attach_point
+            )
+        return outputs
 
     def _make_camera(self, source_cam):
         cam = p3d.Camera(f'{self.name}_camera')
@@ -66,12 +86,14 @@ class RenderPass:
 
         return cam_nodepath
 
-    def _make_buffer(self, fb_props):
-        if not fb_props:
-            fb_props = p3d.FrameBufferProperties()
-            fb_props.set_rgba_bits(8, 8, 8, 0)
-            fb_props.set_depth_bits(24)
+    def _make_default_buffer_props(self):
+        fb_props = p3d.FrameBufferProperties()
+        fb_props.set_rgb_color(True)
+        fb_props.set_rgba_bits(8, 8, 8, 0)
+        fb_props.set_depth_bits(24)
+        return fb_props
 
+    def _make_buffer(self, fb_props):
         return self._engine.make_output(
             self._pipe,
             self.name,
