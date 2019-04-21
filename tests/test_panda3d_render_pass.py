@@ -112,3 +112,17 @@ def test_apply_shader(default_args):
 
     rpass = RenderPass('test', **default_args)
     assert rpass._root.get_shader()
+
+
+def test_multiple_targets(default_args):
+    prepared = default_args['window'].get_gsg().get_prepared_objects()
+    initial_texture_count = prepared.get_num_prepared_textures()
+
+    default_args['frame_buffer_properties'] = p3d.FrameBufferProperties()
+    default_args['frame_buffer_properties'].set_rgb_color(True)
+    default_args['frame_buffer_properties'].set_aux_rgba(1)
+    rpass = RenderPass('test', **default_args)
+    default_args['engine'].render_frame()
+
+    assert len(rpass.outputs) == 2
+    assert prepared.get_num_prepared_textures() == initial_texture_count + 2

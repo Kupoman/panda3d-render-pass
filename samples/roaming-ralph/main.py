@@ -16,7 +16,7 @@ from panda3d.core import CollisionHandlerPusher, CollisionSphere
 from panda3d.core import Filename, AmbientLight, DirectionalLight
 from panda3d.core import PandaNode, NodePath, Camera, TextNode
 from panda3d.core import CollideMask
-from panda3d.core import LColor, Shader, LightRampAttrib, FrameBufferProperties, Texture
+from panda3d.core import LColor, LVector3, Shader, LightRampAttrib, FrameBufferProperties, Texture
 from panda3d.core import load_prc_file_data
 from direct.gui.OnscreenText import OnscreenText
 from direct.actor.Actor import Actor
@@ -58,26 +58,43 @@ class RoamingRalphDemo(ShowBase):
         self.bufferViewer.setCardSize(0, 0.40)
         self.bufferViewer.setLayout("vline")
 
-        self.render.set_attrib(LightRampAttrib.make_identity())
-        fb_props = FrameBufferProperties()
-        fb_props.set_float_color(True)
-        fb_props.set_rgba_bits(16, 16, 16, 0)
-        fb_props.set_depth_bits(32)
-
+        # Configure scene pass
+        scene_fb_props = FrameBufferProperties()
+        scene_fb_props.set_rgb_color(True)
+        scene_fb_props.set_aux_rgba(1)
+        scene_fb_props.set_rgba_bits(8, 8, 8, 0)
+        scene_fb_props.set_depth_bits(32)
         scene_pass = RenderPass(
             'scene',
             camera=base.camera,
             scene=base.render,
-            frame_buffer_properties=fb_props,
-            clear_color=LColor(0.53, 0.80, 0.92, 1),
+            frame_buffer_properties=scene_fb_props,
+            shader=Shader.load(Shader.SL_GLSL, 'shaders/model.vert', 'shaders/model.frag'),
+            clear_color=LColor(0.53, 0.80, 0.92, 1)
         )
 
+        # Configure light pass
+        light_fb_props = FrameBufferProperties()
+        light_fb_props.set_rgb_color(True)
+        light_fb_props.set_float_color(True)
+        light_fb_props.set_rgba_bits(16, 16, 16, 0)
+        light_pass = RenderPass(
+            'light',
+            camera=base.camera,
+            frame_buffer_properties=light_fb_props,
+            shader=Shader.load(Shader.SL_GLSL, 'shaders/light.vert', 'shaders/light.frag'),
+        )
+        light_pass._root.set_shader_input('albedo_texture', scene_pass.outputs[0])
+        light_pass._root.set_shader_input('normal_texture', scene_pass.outputs[1])
+
+        # Configure post processing
         filter_pass = RenderPass(
             'filter',
             shader=Shader.load(Shader.SL_GLSL, 'shaders/fsq.vert', 'shaders/fsq.frag')
         )
-        filter_pass._root.set_shader_input('render', scene_pass.output)
+        filter_pass._root.set_shader_input('render', light_pass.output)
 
+        # Output result
         card = filter_pass.buffer.getTextureCard()
         card.setTexture(filter_pass.output)
         card.reparentTo(render2d)
