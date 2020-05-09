@@ -13,6 +13,7 @@ class RenderPass:
             shader=None,
             frame_buffer_properties=None,
             clear_color=p3d.LColor(0.41, 0.41, 0.41, 0.0),
+            share_depth_with=None,
     ):
         self.name = name
         self._pipe = pipe if pipe else base.pipe
@@ -35,6 +36,13 @@ class RenderPass:
 
         self._camera = self._make_camera(camera)
         self.buffer = self._make_buffer(frame_buffer_properties)
+        if share_depth_with:
+            success = self.buffer.share_depth_buffer(share_depth_with.buffer)
+            if success:
+                self.buffer.set_clear_depth_active(False)
+                self._root.set_attrib(p3d.DepthTestAttrib.make(p3d.RenderAttrib.MLessEqual))
+            else:
+                raise Exception('Unable to share depth buffer')
 
         self.outputs = self._make_outputs(output_count)
         self.output = self.outputs[0] if self.outputs else None

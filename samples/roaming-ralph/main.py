@@ -34,6 +34,7 @@ load_prc_file_data(
     'frame-rate-meter-milliseconds true\n'
     'textures-power-2 false\n'
     'sync-video #f\n'
+    'gl-version 3 3\n'
 )
 
 # Function to put instructions on the screen.
@@ -54,9 +55,17 @@ class RoamingRalphDemo(ShowBase):
         # Set up the window, camera, etc.
         ShowBase.__init__(self)
 
-        self.bufferViewer.setPosition("llcorner")
-        self.bufferViewer.setCardSize(0, 0.40)
-        self.bufferViewer.setLayout("vline")
+        # Configure depth pre-pass
+        prepass_fb_props = FrameBufferProperties()
+        prepass_fb_props.set_depth_bits(32)
+        prepass_fb_props.set_rgba_bits(0, 0, 0, 0)
+        prepass_pass = RenderPass(
+            'pre-pass',
+            camera=base.camera,
+            scene=base.render,
+            frame_buffer_properties=prepass_fb_props,
+            shader=Shader.load(Shader.SL_GLSL, 'shaders/model.vert', 'shaders/null.frag'),
+        )
 
         # Configure scene pass
         scene_fb_props = FrameBufferProperties()
@@ -70,8 +79,10 @@ class RoamingRalphDemo(ShowBase):
             scene=base.render,
             frame_buffer_properties=scene_fb_props,
             shader=Shader.load(Shader.SL_GLSL, 'shaders/model.vert', 'shaders/model.frag'),
-            clear_color=LColor(0.53, 0.80, 0.92, 1)
+            clear_color=LColor(0.53, 0.80, 0.92, 1),
+            share_depth_with=prepass_pass
         )
+        scene_pass._root.set_depth_write(False)
 
         # Configure light pass
         light_fb_props = FrameBufferProperties()
@@ -95,8 +106,9 @@ class RoamingRalphDemo(ShowBase):
         filter_pass._root.set_shader_input('render', light_pass.output)
 
         # Output result
-        card = filter_pass.buffer.getTextureCard()
-        card.setTexture(filter_pass.output)
+        final_pass = scene_pass
+        card = final_pass.buffer.getTextureCard()
+        card.setTexture(final_pass.output)
         card.reparentTo(render2d)
 
         # This is used to store which keys are currently pressed.
